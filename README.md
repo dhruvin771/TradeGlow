@@ -1,4 +1,4 @@
-# TradeGlow
+# TradeGlow (Work In Progress)
 
 **TradeGlow** is a cutting-edge app that provides real-time market data with detailed candle charts. Stay ahead of the market trends with our intuitive and easy-to-use interface.
 
