@@ -27,11 +27,6 @@ flutter:
     - assets/images/
 
   fonts:
-    - family: Satoshi
+    - family: QuickSand
       fonts:
-        - asset: assets/fonts/Satoshi-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Satoshi-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Satoshi-Bold.ttf
-          weight: 600
+        - asset: assets/fonts/Quicksand-Medium.ttf
