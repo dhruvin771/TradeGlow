@@ -13,6 +13,8 @@ dependencies:
   web_socket_channel: ^3.0.0
   http: ^1.2.1
   flutter_svg: ^2.0.10+1
+  dio: ^5.5.0+1
+  dartz: ^0.10.1
 
 dev_dependencies:
   flutter_test:
