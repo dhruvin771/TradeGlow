@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tradeglow/ui/HomeScreen.dart';
+import 'package:tradeglow/ui/home_screen.dart';
 
 void main() {
   runApp(const MyApp());

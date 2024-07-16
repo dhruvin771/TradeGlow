@@ -1,4 +1,4 @@
-package com.smiley.tradeglow.tradeglow
+package com.smiley.tradeglow
 
 import io.flutter.embedding.android.FlutterActivity
 

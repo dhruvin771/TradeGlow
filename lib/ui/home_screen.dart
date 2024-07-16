@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:smooth_list_view/smooth_list_view.dart';
+import 'package:tradeglow/animation/page_change_animation.dart';
 import 'package:tradeglow/domain/services/api_caller.dart';
+import 'package:tradeglow/ui/symbol_detail_screen.dart';
 
 import '../models/crypto_prices.dart';
+import '../utilities/price_formatter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,10 +18,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   ApiCaller api = ApiCaller();
-  late List<CryptoPrice> futureCryptoPrices;
+  late List<CryptoPrice> futureCryptoPrices = [];
+  late List<CryptoPrice> previousCryptoPrices = [];
   bool loading = true;
+  bool status = false;
   Timer? _timer;
 
   @override
@@ -27,9 +33,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() => status = false);
+      fetchCryptoPrices();
+    } else if (state == AppLifecycleState.paused) {
+      setState(() => status = true);
+    }
   }
 
   void fetchCryptoPrices() async {
@@ -37,16 +47,28 @@ class _HomeScreenState extends State<HomeScreen> {
     result.fold(
       (failure) => {debugPrint('Something went wrong.')},
       (response) {
+        if (status) return;
+        if (!mounted) return;
+        if (!loading || previousCryptoPrices.isEmpty) {
+          previousCryptoPrices = futureCryptoPrices;
+          setState(() {});
+        }
         futureCryptoPrices = CryptoPrice.fromJsonList(response.data);
         loading = false;
         setState(() {});
-
         _timer?.cancel();
-        _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+        _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
           fetchCryptoPrices();
         });
       },
     );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -83,32 +105,56 @@ class _HomeScreenState extends State<HomeScreen> {
                         radius: 12,
                       ),
                     )
-                  : ListView.builder(
+                  : SmoothListView.builder(
                       itemCount: futureCryptoPrices.length,
                       itemBuilder: (context, index) {
+                        Color color = previousCryptoPrices.isEmpty ||
+                                (double.parse(
+                                        previousCryptoPrices[index].price) ==
+                                    double.parse(
+                                        futureCryptoPrices[index].price))
+                            ? Colors.grey
+                            : (double.parse(previousCryptoPrices[index].price) <
+                                    double.parse(
+                                        futureCryptoPrices[index].price))
+                                ? Colors.green
+                                : Colors.red;
                         return Column(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    futureCryptoPrices[index].symbol,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    futureCryptoPrices[index].price,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ],
+                            GestureDetector(
+                              onTap: () {
+                                if (futureCryptoPrices[index].symbol.isEmpty)
+                                  return;
+                                Navigator.push(
+                                    context,
+                                    PageChangeAnimation(SymbolDetailScreen(
+                                        futureCryptoPrices[index].symbol)));
+                              },
+                              child: Container(
+                                color: Colors.white.withOpacity(0.001),
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      futureCryptoPrices[index].symbol,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      '\$${formatPrice(double.parse(futureCryptoPrices[index].price.toString()))}',
+                                      style: TextStyle(color: color),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             Container(
                                 color: Colors.white, width: w, height: 0.2),
                           ],
                         );
-                      }))
+                      },
+                      duration: const Duration(milliseconds: 200)))
         ],
       ),
     );
