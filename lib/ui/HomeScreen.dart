@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,19 +16,36 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   ApiCaller api = ApiCaller();
-  late Future<List<CryptoPrice>> futureCryptoPrices;
+  late List<CryptoPrice> futureCryptoPrices;
+  bool loading = true;
+  Timer? _timer;
 
   @override
   void initState() {
-    futureCryptoPrices = fetchCryptoPrices();
     super.initState();
+    fetchCryptoPrices();
   }
 
-  Future<List<CryptoPrice>> fetchCryptoPrices() async {
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void fetchCryptoPrices() async {
     final result = await api.getSymbols();
-    return result.fold(
-      (failure) => throw failure,
-      (response) => CryptoPrice.fromJsonList(response),
+    result.fold(
+      (failure) => {debugPrint('Something went wrong.')},
+      (response) {
+        futureCryptoPrices = CryptoPrice.fromJsonList(response.data);
+        loading = false;
+        setState(() {});
+
+        _timer?.cancel();
+        _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+          fetchCryptoPrices();
+        });
+      },
     );
   }
 
@@ -56,6 +75,40 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           Container(color: Colors.white, width: w, height: 0.2),
+          Expanded(
+              child: loading
+                  ? const Center(
+                      child: CupertinoActivityIndicator(
+                        color: Colors.white,
+                        radius: 12,
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: futureCryptoPrices.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    futureCryptoPrices[index].symbol,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    futureCryptoPrices[index].price,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                                color: Colors.white, width: w, height: 0.2),
+                          ],
+                        );
+                      }))
         ],
       ),
     );
