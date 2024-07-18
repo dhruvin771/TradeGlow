@@ -32,4 +32,18 @@ class ApiCaller {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  Future<Either<Failure, Response>> getCandleData(
+      String symbol, String interval) async {
+    try {
+      final response = await _dio
+          .get(AppEndpoints.candlesUrl(symbol: symbol, interval: interval));
+      return right(response);
+    } catch (e) {
+      if (e is DioException) {
+        return left(ServerFailure.fromDioError(e));
+      }
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }

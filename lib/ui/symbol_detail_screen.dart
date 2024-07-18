@@ -35,6 +35,7 @@ class _SymbolDetailScreenState extends State<SymbolDetailScreen>
   @override
   void initState() {
     fetchSymbolDetail();
+    fetchCandleData();
     super.initState();
   }
 
@@ -67,6 +68,11 @@ class _SymbolDetailScreenState extends State<SymbolDetailScreen>
         });
       },
     );
+  }
+
+  fetchCandleData() async {
+    final result = await api.getCandleData(symbol, "1h");
+    result.fold((failure) {}, (response) {});
   }
 
   @override
