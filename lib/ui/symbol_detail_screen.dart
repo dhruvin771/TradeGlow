@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../candlestick/src/models/candle.dart';
 import '../domain/services/api_caller.dart';
 import '../utilities/price_formatter.dart';
 
@@ -42,7 +44,10 @@ class _SymbolDetailScreenState extends State<SymbolDetailScreen>
   fetchSymbolDetail() async {
     final result = await api.getSymbolDetails(symbol);
     result.fold(
-      (failure) => {debugPrint('Something went wrong.')},
+      (failure) {
+        setState(() => loading = false);
+        debugPrint('Something went wrong.');
+      },
       (response) {
         if (!mounted) return;
         final data = response.data;
@@ -72,7 +77,16 @@ class _SymbolDetailScreenState extends State<SymbolDetailScreen>
 
   fetchCandleData() async {
     final result = await api.getCandleData(symbol, "1h");
-    result.fold((failure) {}, (response) {});
+    result.fold((failure) {
+      setState(() => loading = false);
+      debugPrint('Something went wrong.');
+    }, (response) {
+      final data = (jsonDecode(response.data) as List<dynamic>)
+          .map((e) => Candle.fromJson(e))
+          .toList()
+          .reversed
+          .toList();
+    });
   }
 
   @override
