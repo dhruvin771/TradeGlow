@@ -2,17 +2,21 @@ import 'dart:convert';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../candlestick/src/models/candle.dart';
 import '../configs/base_viewmodel.dart';
-import 'models/candle_ticker.dart';
-import 'models/order_book.dart';
-import 'models/ticker.dart';
+import '../widget/candlesticks/src/models/candle.dart';
+import 'data_models/candle_ticker.dart';
+import 'data_models/order_book.dart';
+import 'data_models/ticker.dart';
+import 'repository.dart';
 
 class ViewModel extends BaseViewModel {
   ViewModel._();
 
   static final _instance = ViewModel._();
+
   static ViewModel get instance => _instance;
+
+  final _repository = Repository();
 
   WebSocketChannel? _channel;
 
@@ -62,8 +66,8 @@ class ViewModel extends BaseViewModel {
       final tickers = await _repository.fetchSymbols();
       _tickers = tickers;
       if (tickers.isNotEmpty) {
-        updateData(_tickers.first,
-            interval: _currentInterval, limit: _currentLimit);
+        /*updateData(_tickers.first,
+            interval: _currentInterval, limit: _currentLimit);*/
       }
     } catch (e) {
       setViewState(ViewState.failed);
@@ -201,21 +205,24 @@ class ViewModel extends BaseViewModel {
     }
   }
 
-  Stream<dynamic>? get socketStream =>
-      _channel != null ? _channel!.stream : null;
+  Stream<dynamic>? get socketStream => _channel?.stream;
 
   List<String> get intervals => _intervals;
+
   String get currentInterval => _currentInterval;
 
   List<int> get limits => _limits;
+
   int get currentLimit => _currentLimit;
 
   Ticker? get currentTicker => _currentTicker;
+
   List<Ticker> get tickers => _tickers;
 
   List<Candle> get candles => _candles;
 
   OrderBook? get orderBook => _orderBook;
+
   ExchangeSymbol? get symbols => _symbols;
 
   String get pairSymbol => symbols != null

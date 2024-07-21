@@ -1,18 +1,18 @@
 name: tradeglow
-description: "A new Flutter project."
+description: A Flutter project that consumes the Binance WebSockets API for Candlestick and Orderbooks.
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.3 <4.0.0'
+  sdk: '>=3.1.5 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-  web_socket_channel: ^3.0.0
-  http: ^1.2.1
-  flutter_svg: ^2.0.10+1
+  cupertino_icons: ^1.0.2
+  flutter_svg: ^2.0.7
+  web_socket_channel: ^2.4.0
+  http: ^1.1.0
   dio: ^5.5.0+1
   dartz: ^0.10.1
   smooth_list_view: ^1.0.5
@@ -22,15 +22,34 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^3.0.0
+  flutter_lints: ^2.0.0
 
 flutter:
+
   uses-material-design: true
+
   assets:
-    - assets/svgs/
     - assets/images/
+    - assets/images/svgs/
 
   fonts:
-    - family: QuickSand
+    - family: Satoshi
       fonts:
-        - asset: assets/fonts/Quicksand-Medium.ttf
+        - asset: assets/fonts/Satoshi-Light.otf
+          weight: 100
+        - asset: assets/fonts/Satoshi-Light.otf
+          weight: 200
+        - asset: assets/fonts/Satoshi-Regular.otf
+          weight: 300
+        - asset: assets/fonts/Satoshi-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Satoshi-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Satoshi-Medium.otf
+          weight: 600
+        - asset: assets/fonts/Satoshi-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Satoshi-Black.otf
+          weight: 800
+        - asset: assets/fonts/Satoshi-Black.otf
+          weight: 900

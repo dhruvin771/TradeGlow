@@ -46,4 +46,30 @@ class ApiCaller {
       return left(ServerFailure(e.toString()));
     }
   }
+
+  Future<Either<Failure, Response>> getCandleMoreData(
+      String symbol, String interval, int endTime) async {
+    try {
+      final response = await _dio.get(AppEndpoints.candlesUrl(
+          symbol: symbol, interval: interval, endTime: endTime));
+      return right(response);
+    } catch (e) {
+      if (e is DioException) {
+        return left(ServerFailure.fromDioError(e));
+      }
+      return left(ServerFailure(e.toString()));
+    }
+  }
+
+  Future<Either<Failure, Response>> getExchangeInfo(String symbol) async {
+    try {
+      final response = await _dio.get(AppEndpoints.exchangeInfoUrl(symbol));
+      return right(response);
+    } catch (e) {
+      if (e is DioException) {
+        return left(ServerFailure.fromDioError(e));
+      }
+      return left(ServerFailure(e.toString()));
+    }
+  }
 }
