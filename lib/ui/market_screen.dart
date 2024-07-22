@@ -3,15 +3,17 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_list_view/smooth_list_view.dart';
 import 'package:tradeglow/animation/page_change_animation.dart';
 import 'package:tradeglow/core/data_models/ticker.dart';
 import 'package:tradeglow/domain/services/api_caller.dart';
+import 'package:tradeglow/provider/market.dart';
 
 import '../core/view_model.dart';
 import '../models/crypto_prices.dart';
 import '../utilities/price_formatter.dart';
-import 'home_screen.dart';
+import 'chart_screen.dart';
 
 class MarketScreen extends StatefulWidget {
   const MarketScreen({super.key});
@@ -61,9 +63,13 @@ class _MarketScreenState extends State<MarketScreen>
         if (!mounted) return;
         if (!loading || previousCryptoPrices.isEmpty) {
           previousCryptoPrices = futureCryptoPrices;
+          context.read<CryptoPriceList>().oldCryptoPrice(futureCryptoPrices);
           setState(() {});
         }
         futureCryptoPrices = CryptoPrice.fromJsonList(response.data);
+        context
+            .read<CryptoPriceList>()
+            .addCryptoPrice(CryptoPrice.fromJsonList(response.data));
         loading = false;
         setState(() {});
         _timer?.cancel();
@@ -141,7 +147,7 @@ class _MarketScreenState extends State<MarketScreen>
                                     futureCryptoPrices[index].toJson()));
                                 Navigator.push(
                                     context,
-                                    PageChangeAnimation(HomeScreen(
+                                    PageChangeAnimation(ChartScreen(
                                         futureCryptoPrices[index].symbol)));
                               },
                               child: Container(

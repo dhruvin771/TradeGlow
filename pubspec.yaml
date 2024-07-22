@@ -17,6 +17,8 @@ dependencies:
   dartz: ^0.10.1
   smooth_list_view: ^1.0.5
   intl: ^0.19.0
+  wolt_modal_sheet: ^0.7.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
