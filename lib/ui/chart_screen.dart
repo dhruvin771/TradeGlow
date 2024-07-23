@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wolt_modal_sheet/wolt_modal_sheet.dart';
 
+import '../core/data_models/ticker.dart';
+import '../core/view_model.dart';
 import '../domain/services/api_caller.dart';
 import '../models/crypto_prices.dart';
 import '../provider/market.dart';
@@ -36,13 +38,32 @@ class _ChartScreenState extends State<ChartScreen> {
   String volume = "";
   String quoteVolume = "";
   Color color = Colors.white;
-  String currentInterval = "1h";
   Timer? _timer;
 
-  String get symbol => widget.symbol;
+  String symbol = "";
+  String currentTime = "";
+
+  final intervals = [
+    '1m',
+    '3m',
+    '5m',
+    '15m',
+    '30m',
+    '1h',
+    '2h',
+    '4h',
+    '6h',
+    '8h',
+    '12h',
+    '1d',
+    '3d',
+    '1w',
+    '1M'
+  ];
 
   @override
   void initState() {
+    setState(() => symbol = widget.symbol);
     fetchSymbolDetail();
     fetchExchangeInfo();
     super.initState();
@@ -290,7 +311,7 @@ class _ChartScreenState extends State<ChartScreen> {
                                     final textTheme =
                                         Theme.of(context).textTheme;
                                     return [
-                                      marketList(modalSheetContext, textTheme),
+                                      timeList(modalSheetContext, textTheme),
                                     ];
                                   },
                                   modalTypeBuilder: (context) {
@@ -309,15 +330,17 @@ class _ChartScreenState extends State<ChartScreen> {
                                 decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(25)),
-                                child: const Row(
+                                child: Row(
                                   children: [
                                     Text(
-                                      '1m',
-                                      style: TextStyle(
+                                      currentTime.isEmpty
+                                          ? ViewModel.instance.currentInterval
+                                          : currentTime,
+                                      style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    Icon(
+                                    const Icon(
                                       size: 16,
                                       Icons.keyboard_arrow_down_sharp,
                                       color: Colors.black,
@@ -332,6 +355,66 @@ class _ChartScreenState extends State<ChartScreen> {
                       Container(color: Colors.white, width: w, height: 0.2),
                       const MarketBoard(),
                       Container(color: Colors.white, width: w, height: 0.2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 5),
+                        child: Row(
+                          children: [
+                            const Text(
+                              'Orders',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                WoltModalSheet.show<void>(
+                                  context: context,
+                                  pageListBuilder: (modalSheetContext) {
+                                    final textTheme =
+                                        Theme.of(context).textTheme;
+                                    return [
+                                      timeList(modalSheetContext, textTheme),
+                                    ];
+                                  },
+                                  modalTypeBuilder: (context) {
+                                    return WoltModalType.bottomSheet();
+                                  },
+                                  onModalDismissedWithBarrierTap: () {
+                                    debugPrint(
+                                        'Closed modal sheet with barrier tap');
+                                    Navigator.of(context).pop();
+                                  },
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    left: 12, top: 2, bottom: 2, right: 8),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      currentTime.isEmpty
+                                          ? ViewModel.instance.currentInterval
+                                          : currentTime,
+                                      style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    const Icon(
+                                      size: 16,
+                                      Icons.keyboard_arrow_down_sharp,
+                                      color: Colors.black,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(color: Colors.white, width: w, height: 0.2),
                     ],
                   ),
                 ),
@@ -342,7 +425,6 @@ class _ChartScreenState extends State<ChartScreen> {
 
   SliverWoltModalSheetPage marketList(
       BuildContext modalSheetContext, TextTheme textTheme) {
-    double w = MediaQuery.sizeOf(context).width;
     List<CryptoPrice> price =
         Provider.of<CryptoPriceList>(context).cryptoPrices;
     List<CryptoPrice> oldPrice =
@@ -365,27 +447,82 @@ class _ChartScreenState extends State<ChartScreen> {
                           double.parse(price[index].price))
                       ? Colors.green
                       : Colors.red;
-              return Container(
-                decoration: BoxDecoration(
-                    color: Colors.black,
-                    border: Border.all(color: Colors.white, width: 0.1)),
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  children: [
-                    Text(
-                      '${index + 1} : ${price[index].symbol}',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '\$${formatPrice(double.parse(price[index].price.toString()))}',
-                      style: TextStyle(color: color),
-                    ),
-                  ],
+              return GestureDetector(
+                onTap: () {
+                  setState(() => symbol = price[index].symbol);
+                  fetchSymbolDetail();
+                  fetchExchangeInfo();
+                  ViewModel.instance
+                      .updateData(Ticker.fromMap(price[index].toJson()));
+                  Navigator.pop(modalSheetContext);
+                },
+                child: Container(
+                  decoration: const BoxDecoration(
+                      color: Colors.black,
+                      border: Border.symmetric(
+                          horizontal:
+                              BorderSide(color: Colors.blueGrey, width: 0.3))),
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Text(
+                        price[index].symbol,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '\$${formatPrice(double.parse(price[index].price.toString()))}',
+                        style: TextStyle(color: color),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
             childCount: price.length,
+          ),
+        )
+      ],
+    );
+  }
+
+  SliverWoltModalSheetPage timeList(
+      BuildContext modalSheetContext, TextTheme textTheme) {
+    return SliverWoltModalSheetPage(
+      trailingNavBarWidget: IconButton(
+        padding: const EdgeInsets.all(15),
+        icon: const Icon(Icons.close),
+        onPressed: Navigator.of(modalSheetContext).pop,
+      ),
+      mainContentSliversBuilder: (context) => [
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (_, index) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() => currentTime = intervals[index]);
+                  ViewModel.instance.setInterval(intervals[index]);
+                  Navigator.pop(modalSheetContext);
+                },
+                child: Container(
+                  decoration: const BoxDecoration(
+                      color: Colors.black,
+                      border: Border.symmetric(
+                          horizontal:
+                              BorderSide(color: Colors.blueGrey, width: 0.3))),
+                  padding: const EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Text(
+                        intervals[index],
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            childCount: intervals.length,
           ),
         )
       ],

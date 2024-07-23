@@ -9,9 +9,7 @@ import 'res/app_theme.dart';
 
 Future<void> main() async {
   runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => CryptoPriceList()),
-    ],
+    providers: [ChangeNotifierProvider(create: (_) => CryptoPriceList())],
     child: const MyApp(),
   ));
 }
