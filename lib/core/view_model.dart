@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -43,7 +44,7 @@ class ViewModel extends BaseViewModel {
   final _limits = [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   Ticker? _currentTicker;
-  List<Ticker> _tickers = [];
+  final List<Ticker> _tickers = [];
 
   List<Candle> _candles = [];
 
@@ -59,20 +60,6 @@ class ViewModel extends BaseViewModel {
     _currentTicker = null;
     _symbols = null;
     updateData(ticker, interval: _currentInterval, limit: _currentLimit);
-  }
-
-  Future<void> fetchSymbols() async {
-    try {
-      final tickers = await _repository.fetchSymbols();
-      _tickers = tickers;
-      if (tickers.isNotEmpty) {
-        /*updateData(_tickers.first,
-            interval: _currentInterval, limit: _currentLimit);*/
-      }
-    } catch (e) {
-      setViewState(ViewState.failed);
-      return;
-    }
   }
 
   Future<void> updateData(Ticker ticker, {String? interval, int? limit}) async {
@@ -137,7 +124,7 @@ class ViewModel extends BaseViewModel {
     if (_channel != null) {
       _channel!.stream.listen(
         (message) {
-          //log(name: 'Incoming', message);
+          log(name: 'Incoming', message);
           final map = jsonDecode(message) as Map<String, dynamic>;
           if (map['e'] == 'depthUpdate' && map['s'] == ticker.symbol) {
             if (_orderBook == null) return;
