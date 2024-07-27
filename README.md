@@ -20,10 +20,7 @@
 
 ## Demo 
 
-<video width="320" controls autoplay muted>
-  <source src="https://github.com/user-attachments/assets/794846ed-13f2-44c6-a5ba-bbc2ca55ad82" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+https://github.com/user-attachments/assets/794846ed-13f2-44c6-a5ba-bbc2ca55ad82
 
 ## Technology
 
