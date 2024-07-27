@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  flutter_svg: ^2.0.7
   web_socket_channel: ^2.4.0
   http: ^1.1.0
   dio: ^5.5.0+1
@@ -32,7 +31,6 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/images/svgs/
 
   fonts:
     - family: Satoshi

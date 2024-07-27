@@ -15,8 +15,7 @@ import '../provider/market.dart';
 import '../res/app_colors.dart';
 import '../utilities/price_formatter.dart';
 import '../widget/candlesticks/src/theme/color_palette.dart';
-import 'widget/image_view.dart';
-import 'widget/market_board.dart';
+import 'market_board.dart';
 
 class ChartScreen extends StatefulWidget {
   String symbol = "";
@@ -768,31 +767,6 @@ class _ChartScreenState extends State<ChartScreen> {
 
   double _cumulativeQuantity(List<List<double>> data) {
     return data.fold(0, (previousValue, d) => previousValue += d.last);
-  }
-}
-
-class Drawer extends StatelessWidget {
-  final String icon;
-  final bool selected;
-  final void Function()? onTap;
-
-  const Drawer(
-      {required this.icon, this.selected = false, this.onTap, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-          height: 32,
-          width: 32,
-          margin: const EdgeInsets.only(right: 2.0),
-          decoration: BoxDecoration(
-            color: selected ? Theme.of(context).colorScheme.secondary : null,
-            borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-          ),
-          child: Center(child: ImageView.svg(icon, height: 10, width: 12))),
-    );
   }
 }
 

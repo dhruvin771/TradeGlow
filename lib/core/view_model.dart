@@ -22,26 +22,7 @@ class ViewModel extends BaseViewModel {
   WebSocketChannel? _channel;
 
   String _currentInterval = "1h";
-  final _intervals = [
-    '1m',
-    '3m',
-    '5m',
-    '15m',
-    '30m',
-    '1h',
-    '2h',
-    '4h',
-    '6h',
-    '8h',
-    '12h',
-    '1d',
-    '3d',
-    '1w',
-    '1M'
-  ];
-
   int _currentLimit = 5;
-  final _limits = [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
   Ticker? _currentTicker;
   final List<Ticker> _tickers = [];
@@ -194,11 +175,7 @@ class ViewModel extends BaseViewModel {
 
   Stream<dynamic>? get socketStream => _channel?.stream;
 
-  List<String> get intervals => _intervals;
-
   String get currentInterval => _currentInterval;
-
-  List<int> get limits => _limits;
 
   int get currentLimit => _currentLimit;
 
